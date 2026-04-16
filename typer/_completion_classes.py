@@ -32,11 +32,7 @@ class BashComplete(click.shell_completion.BashComplete):
     source_template = COMPLETION_SCRIPT_BASH
 
     def source_vars(self) -> dict[str, Any]:
-        return {
-            "complete_func": self.func_name,
-            "autocomplete_var": self.complete_var,
-            "prog_name": self.prog_name,
-        }
+        pass
 
     def get_completion_args(self) -> tuple[list[str], str]:
         cwords = click_split_arg_string(os.environ["COMP_WORDS"])
@@ -68,11 +64,7 @@ class ZshComplete(click.shell_completion.ZshComplete):
     source_template = COMPLETION_SCRIPT_ZSH
 
     def source_vars(self) -> dict[str, Any]:
-        return {
-            "complete_func": self.func_name,
-            "autocomplete_var": self.complete_var,
-            "prog_name": self.prog_name,
-        }
+        pass
 
     def get_completion_args(self) -> tuple[list[str], str]:
         completion_args = os.getenv("_TYPER_COMPLETE_ARGS", "")
@@ -119,11 +111,7 @@ class FishComplete(click.shell_completion.FishComplete):
     source_template = COMPLETION_SCRIPT_FISH
 
     def source_vars(self) -> dict[str, Any]:
-        return {
-            "complete_func": self.func_name,
-            "autocomplete_var": self.complete_var,
-            "prog_name": self.prog_name,
-        }
+        pass
 
     def get_completion_args(self) -> tuple[list[str], str]:
         completion_args = os.getenv("_TYPER_COMPLETE_ARGS", "")
@@ -172,11 +160,7 @@ class PowerShellComplete(click.shell_completion.ShellComplete):
     source_template = COMPLETION_SCRIPT_POWER_SHELL
 
     def source_vars(self) -> dict[str, Any]:
-        return {
-            "complete_func": self.func_name,
-            "autocomplete_var": self.complete_var,
-            "prog_name": self.prog_name,
-        }
+        pass
 
     def get_completion_args(self) -> tuple[list[str], str]:
         completion_args = os.getenv("_TYPER_COMPLETE_ARGS", "")

@@ -42,14 +42,11 @@ NONE_TYPES: tuple[Any, Any, Any] = (None, NoneType, Literal[None])
 
 
 def is_none_type(type_: Any) -> bool:
-    for none_type in NONE_TYPES:
-        if type_ is none_type:
-            return True
-    return False
+    pass
 
 
 def is_callable_type(type_: type[Any]) -> bool:
-    return type_ is Callable or get_origin(type_) is Callable
+    pass
 
 
 def is_literal_type(type_: type[Any]) -> bool:
@@ -66,8 +63,4 @@ def all_literal_values(type_: type[Any]) -> tuple[Any, ...]:
     Literal can be used recursively (see https://www.python.org/dev/peps/pep-0586)
     e.g. `Literal[Literal[Literal[1, 2, 3], "foo"], 5, None]`
     """
-    if not is_literal_type(type_):
-        return (type_,)
-
-    values = literal_values(type_)
-    return tuple(x for value in values for x in all_literal_values(value))
+    pass

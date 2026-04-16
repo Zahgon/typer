@@ -59,52 +59,7 @@ _typer_developer_exception_attr_name = "__typer_developer_exception__"
 def except_hook(
     exc_type: type[BaseException], exc_value: BaseException, tb: TracebackType | None
 ) -> None:
-    exception_config: DeveloperExceptionConfig | None = getattr(
-        exc_value, _typer_developer_exception_attr_name, None
-    )
-    standard_traceback = os.getenv(
-        "TYPER_STANDARD_TRACEBACK", os.getenv("_TYPER_STANDARD_TRACEBACK")
-    )
-    if (
-        standard_traceback
-        or not exception_config
-        or not exception_config.pretty_exceptions_enable
-    ):
-        _original_except_hook(exc_type, exc_value, tb)
-        return
-    typer_path = os.path.dirname(__file__)
-    click_path = os.path.dirname(click.__file__)
-    internal_dir_names = [typer_path, click_path]
-    exc = exc_value
-    if HAS_RICH:
-        from . import rich_utils
-
-        rich_tb = rich_utils.get_traceback(exc, exception_config, internal_dir_names)
-        console_stderr = rich_utils._get_rich_console(stderr=True)
-        console_stderr.print(rich_tb)
-        return
-    tb_exc = traceback.TracebackException.from_exception(exc)
-    stack: list[FrameSummary] = []
-    for frame in tb_exc.stack:
-        if any(frame.filename.startswith(path) for path in internal_dir_names):
-            if not exception_config.pretty_exceptions_short:
-                # Hide the line for internal libraries, Typer and Click
-                stack.append(
-                    traceback.FrameSummary(
-                        filename=frame.filename,
-                        lineno=frame.lineno,
-                        name=frame.name,
-                        line="",
-                    )
-                )
-        else:
-            stack.append(frame)
-    # Type ignore ref: https://github.com/python/typeshed/pull/8244
-    final_stack_summary = StackSummary.from_list(stack)
-    tb_exc.stack = final_stack_summary
-    for line in tb_exc.format():
-        print(line, file=sys.stderr)
-    return
+    pass
 
 
 def get_install_completion_arguments() -> tuple[click.Parameter, click.Parameter]:
@@ -724,27 +679,7 @@ class Typer:
         """
 
         def decorator(f: CommandFunctionType) -> CommandFunctionType:
-            self.registered_callback = TyperInfo(
-                cls=cls,
-                invoke_without_command=invoke_without_command,
-                no_args_is_help=no_args_is_help,
-                subcommand_metavar=subcommand_metavar,
-                chain=chain,
-                result_callback=result_callback,
-                context_settings=context_settings,
-                callback=f,
-                help=help,
-                epilog=epilog,
-                short_help=short_help,
-                options_metavar=(
-                    options_metavar or self._info_val_str("options_metavar")
-                ),
-                add_help_option=add_help_option,
-                hidden=hidden,
-                deprecated=deprecated,
-                rich_help_panel=rich_help_panel,
-            )
-            return f
+            pass
 
         return decorator
 
@@ -886,27 +821,7 @@ class Typer:
             cls = TyperCommand
 
         def decorator(f: CommandFunctionType) -> CommandFunctionType:
-            self.registered_commands.append(
-                CommandInfo(
-                    name=name,
-                    cls=cls,
-                    context_settings=context_settings,
-                    callback=f,
-                    help=help,
-                    epilog=epilog,
-                    short_help=short_help,
-                    options_metavar=(
-                        options_metavar or self._info_val_str("options_metavar")
-                    ),
-                    add_help_option=add_help_option,
-                    no_args_is_help=no_args_is_help,
-                    hidden=hidden,
-                    deprecated=deprecated,
-                    # Rich settings
-                    rich_help_panel=rich_help_panel,
-                )
-            )
-            return f
+            pass
 
         return decorator
 
@@ -1434,11 +1349,7 @@ def determine_type_convertor(type_: Any) -> Callable[[Any], Any] | None:
 
 
 def param_path_convertor(value: str | None = None) -> Path | None:
-    if value is not None:
-        # allow returning any subclass of Path created by an annotated parser without converting
-        # it back to a Path
-        return value if isinstance(value, Path) else Path(value)
-    return None
+    pass
 
 
 def generate_enum_convertor(enum: type[Enum]) -> Callable[[Any], Any]:
@@ -1458,9 +1369,7 @@ def generate_list_convertor(
     convertor: Callable[[Any], Any] | None, default_value: Any | None
 ) -> Callable[[Sequence[Any] | None], list[Any] | None]:
     def internal_convertor(value: Sequence[Any] | None) -> list[Any] | None:
-        if (value is None) or (default_value is None and len(value) == 0):
-            return None
-        return [convertor(v) if convertor else v for v in value]
+        pass
 
     return internal_convertor
 
@@ -1473,12 +1382,7 @@ def generate_tuple_convertor(
     def internal_convertor(
         param_args: tuple[Any, ...] | None,
     ) -> tuple[Any, ...] | None:
-        if param_args is None:
-            return None
-        return tuple(
-            convertor(arg) if convertor else arg
-            for (convertor, arg) in zip(convertors, param_args, strict=False)
-        )
+        pass
 
     return internal_convertor
 
@@ -1503,15 +1407,7 @@ def get_callback(
             use_params[param.name] = param.default
 
     def wrapper(**kwargs: Any) -> Any:
-        _rich_traceback_guard = pretty_exceptions_short  # noqa: F841
-        for k, v in kwargs.items():
-            if k in use_convertors:
-                use_params[k] = use_convertors[k](v)
-            else:
-                use_params[k] = v
-        if context_param_name:
-            use_params[context_param_name] = click.get_current_context()
-        return callback(**use_params)
+        pass
 
     update_wrapper(wrapper, callback)
     return wrapper
@@ -1822,18 +1718,7 @@ def get_param_callback(
             )
 
     def wrapper(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
-        use_params: dict[str, Any] = {}
-        if ctx_name:
-            use_params[ctx_name] = ctx
-        if click_param_name:
-            use_params[click_param_name] = param
-        if value_name:
-            if convertor:
-                use_value = convertor(value)
-            else:
-                use_value = value
-            use_params[value_name] = use_value
-        return callback(**use_params)
+        pass
 
     update_wrapper(wrapper, callback)
     return wrapper
@@ -1879,14 +1764,7 @@ def get_param_completion(
         )
 
     def wrapper(ctx: click.Context, args: list[str], incomplete: str | None) -> Any:
-        use_params: dict[str, Any] = {}
-        if ctx_name:
-            use_params[ctx_name] = ctx
-        if args_name:
-            use_params[args_name] = args
-        if incomplete_name:
-            use_params[incomplete_name] = incomplete
-        return callback(**use_params)
+        pass
 
     update_wrapper(wrapper, callback)
     return wrapper
